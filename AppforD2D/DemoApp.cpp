@@ -1,7 +1,8 @@
 #include <d2d1.h>
 #include "DemoApp.h"
 
-//Âêëþ÷åíèå áèáëèîòåêè äëÿ êîìïîíîâùèêà
+//Ã‚ÃªÃ«Ã¾Ã·Ã¥Ã­Ã¨Ã¥ Ã¡Ã¨Ã¡Ã«Ã¨Ã®Ã²Ã¥ÃªÃ¨ Ã¤Ã«Ã¿ ÃªÃ®Ã¬Ã¯Ã®Ã­Ã®Ã¢Ã¹Ã¨ÃªÃ 
+// Ð“Ð¸Ñ‚ Ð´Ð¾Ð±Ð°Ð²ÐºÐ°
 #pragma comment(lib,"d2d1.lib")
 
 MyClass::MyClass(HINSTANCE h)
@@ -124,9 +125,9 @@ HRESULT MyClass::CreateDeviceIndependentResources()
 }
 HRESULT MyClass::CreateTarget()
 {
-	if (this->pRenderTarget) return S_FALSE; // Âûõîäèì, åñëè ñöåíà óæå ñîçäàíà
+	if (this->pRenderTarget) return S_FALSE; // Ã‚Ã»ÃµÃ®Ã¤Ã¨Ã¬, Ã¥Ã±Ã«Ã¨ Ã±Ã¶Ã¥Ã­Ã  Ã³Ã¦Ã¥ Ã±Ã®Ã§Ã¤Ã Ã­Ã 
 
-	// Ïîëó÷àåì ðàçìåðû îêíà
+	// ÃÃ®Ã«Ã³Ã·Ã Ã¥Ã¬ Ã°Ã Ã§Ã¬Ã¥Ã°Ã» Ã®ÃªÃ­Ã 
 	RECT rc;
 	GetClientRect(this->hWnd, &rc);
 	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
