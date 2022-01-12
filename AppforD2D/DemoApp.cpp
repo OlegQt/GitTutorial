@@ -131,12 +131,13 @@ HRESULT Engine::CreateTarget()
 	GetClientRect(this->hWnd, &rc);
 	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
 
-	// Create a Direct2D render target.
+	// Create a Direct2D render target
 	return m_pDirect2dFactory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
 		D2D1::HwndRenderTargetProperties(this->hWnd, size),
 		&this->pRenderTarget
 	);
+
 }
 HRESULT Engine::Render()
 {
@@ -145,8 +146,16 @@ HRESULT Engine::Render()
 	this->pRenderTarget->BeginDraw();
 	this->pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 	this->pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Gray));
+	this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	if (!pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
+	//this->pBrush->SetColor(D2D1::ColorF::Black);
+	if (FAILED(hr)) return hr;
+	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(20.0f, 20.0f),20.0f,20.0f), this->pBrush, 1.0f);
+	this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(60.0f, 20.0f), 20.0f, 20.0f), this->pBrush, 1.0f);
+
+
 	hr = this->pRenderTarget->EndDraw();
-	
 	if (hr == D2DERR_RECREATE_TARGET)
 	{
 		hr = S_OK;
