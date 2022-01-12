@@ -2,10 +2,12 @@
 #include "DemoApp.h"
 
 //Âêëþ÷åíèå áèáëèîòåêè äëÿ êîìïîíîâùèêà
-// Гит добавка
+// Гит добавка из компа
+// Добавление локальных изменений
+// еще одно изменение
 #pragma comment(lib,"d2d1.lib")
 
-MyClass::MyClass(HINSTANCE h)
+Engine::Engine(HINSTANCE h)
 {
 	hWnd = NULL;
 	this->hInst = h;
@@ -13,7 +15,7 @@ MyClass::MyClass(HINSTANCE h)
 	this->pBrush = NULL;
 	this->pRenderTarget = NULL;
 }
-MyClass::~MyClass()
+Engine::~Engine()
 {
 	if (this->m_pDirect2dFactory)
 	{
@@ -32,7 +34,7 @@ MyClass::~MyClass()
 	}
 }
 
-HRESULT MyClass::Initialize()
+HRESULT Engine::Initialize()
 {
 	HRESULT hr=S_OK;
 
@@ -44,7 +46,7 @@ HRESULT MyClass::Initialize()
 		// Register the window class.
 		WNDCLASSEX wcex = { sizeof(WNDCLASSEX) };
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
-		wcex.lpfnWndProc = MyClass::WndProc;
+		wcex.lpfnWndProc = Engine::WndProc;
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = sizeof(LONG_PTR);
 		wcex.hInstance = this->hInst;
@@ -72,7 +74,7 @@ HRESULT MyClass::Initialize()
 	}
 	return hr;
 }
-void MyClass::RunMessageLoop()
+void Engine::RunMessageLoop()
 {
     MSG msg;
 	msg.message = WM_NULL; //initialize variable msg
@@ -89,21 +91,21 @@ void MyClass::RunMessageLoop()
 	}
 
 }
-LRESULT MyClass::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result = 0;
 
-	static MyClass* This;
+	static Engine* This;
 
 	if (message == WM_CREATE) {
 
 		// Attach additional data
-		This = (MyClass*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+		This = (Engine*)((LPCREATESTRUCT)lParam)->lpCreateParams;
 		::SetWindowLong(hWnd, GWLP_USERDATA, (LONG_PTR)This);
 	}
 	else {
 		// Using additional data
-		This = (MyClass*) ::GetWindowLong(hWnd, GWLP_USERDATA);
+		This = (Engine*) ::GetWindowLong(hWnd, GWLP_USERDATA);
 	}
 
 	if (message == WM_DESTROY)
@@ -114,7 +116,7 @@ LRESULT MyClass::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return (DefWindowProc(hWnd, message, wParam, lParam));
 }
-HRESULT MyClass::CreateDeviceIndependentResources()
+HRESULT Engine::CreateDeviceIndependentResources()
 {
 	HRESULT hr = S_OK;
 
@@ -123,7 +125,7 @@ HRESULT MyClass::CreateDeviceIndependentResources()
 
 	return hr;
 }
-HRESULT MyClass::CreateTarget()
+HRESULT Engine::CreateTarget()
 {
 	if (this->pRenderTarget) return S_FALSE; // Âûõîäèì, åñëè ñöåíà óæå ñîçäàíà
 
@@ -139,7 +141,7 @@ HRESULT MyClass::CreateTarget()
 		&this->pRenderTarget
 	);
 }
-HRESULT MyClass::Render()
+HRESULT Engine::Render()
 {
 	HRESULT hr = this->CreateTarget();
 	if (FAILED(hr)) return hr;
@@ -155,7 +157,7 @@ HRESULT MyClass::Render()
 	}
 	return S_OK;
 }
-void MyClass::DiscardDeviceResources()
+void Engine::DiscardDeviceResources()
 {
 	if (this->m_pDirect2dFactory)
 	{

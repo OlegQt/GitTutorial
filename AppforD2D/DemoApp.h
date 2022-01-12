@@ -3,11 +3,11 @@
 #include <d2d1.h>
 #include <d2d1helper.h>
 
-class MyClass
+class Engine
 {
 public:
-	MyClass(HINSTANCE);
-	~MyClass();
+	Engine(HINSTANCE);
+	~Engine();
 	
 	// Register the window class and call methods for instantiating drawing resources
 	HRESULT Initialize();
