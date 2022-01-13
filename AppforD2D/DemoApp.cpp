@@ -57,12 +57,13 @@ HRESULT Engine::Initialize()
 	// Create the window.
 	// Because the CreateWindow function takes its size in pixels,
 	// obtain the system DPI and use it to scale the window size.
-	FLOAT dpiX, dpiY;
+	//FLOAT dpiX, dpiY;
 	// The factory returns the current system DPI. 
 	// This is also the value it will use to create its own windows.
 	//m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-	this->hWnd = CreateWindow(L"D2DDemoApp",L"app D2D",WS_OVERLAPPED|WS_SYSMENU,0,0,100,100,NULL,NULL,this->hInst,this);
+	this->hWnd = CreateWindow(L"D2DDemoApp",L"app D2D",WS_OVERLAPPED|WS_SYSMENU,0,0,500,500,NULL,NULL,this->hInst,this);
 	if (!this->hWnd) return S_FALSE;
+
 	if (SUCCEEDED(hr))
 	{
 		ShowWindow(this->hWnd, SW_SHOWNORMAL);
@@ -91,7 +92,6 @@ void Engine::RunMessageLoop()
 LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result = 0;
-
 	static Engine* This;
 
 	if (message == WM_CREATE) {
@@ -109,6 +109,14 @@ LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PostQuitMessage(NULL);
 		return 0;
+	}
+	if (message == WM_LBUTTONDOWN)
+	{
+		// Достаем координаты щелчка
+		float Xpos, Ypos;
+		Xpos = static_cast<float>LOWORD(lParam);
+		Ypos = static_cast<float>HIWORD(lParam);
+		
 	}
 
 	return (DefWindowProc(hWnd, message, wParam, lParam));
@@ -132,11 +140,14 @@ HRESULT Engine::CreateTarget()
 	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
 
 	// Create a Direct2D render target
-	return m_pDirect2dFactory->CreateHwndRenderTarget(
+	HRESULT hr = m_pDirect2dFactory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
 		D2D1::HwndRenderTargetProperties(this->hWnd, size),
 		&this->pRenderTarget
 	);
+	if(SUCCEEDED(hr)) this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	if (SUCCEEDED(hr)&& !pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
+	return hr;
 
 }
 HRESULT Engine::Render()
@@ -146,15 +157,11 @@ HRESULT Engine::Render()
 	this->pRenderTarget->BeginDraw();
 	this->pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 	this->pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Gray));
-	this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-	if (!pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
-	//this->pBrush->SetColor(D2D1::ColorF::Black);
-	if (FAILED(hr)) return hr;
+	// Draw here
 	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(20.0f, 20.0f),20.0f,20.0f), this->pBrush, 1.0f);
-	this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
-	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(60.0f, 20.0f), 20.0f, 20.0f), this->pBrush, 1.0f);
 
 
+	// up to this end
 	hr = this->pRenderTarget->EndDraw();
 	if (hr == D2DERR_RECREATE_TARGET)
 	{
