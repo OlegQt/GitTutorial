@@ -30,6 +30,11 @@ Engine::~Engine()
 		this->pRenderTarget->Release();
 		this->pRenderTarget = NULL;
 	}
+	if (this->pLogig)
+	{
+		this->pLogig->~CLogic();
+		this->pLogig = NULL;
+	}
 }
 
 HRESULT Engine::Initialize()
@@ -93,17 +98,18 @@ void Engine::RunMessageLoop()
 LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result = 0;
-	static Engine* This;
-
-	if (message == WM_CREATE) {
+	Engine* This = NULL;
+	if (message == WM_CREATE&&!This) {
 
 		// Attach additional data
+		Engine* This;
 		This = (Engine*)((LPCREATESTRUCT)lParam)->lpCreateParams;
-		::SetWindowLong(hWnd, GWLP_USERDATA, (LONG_PTR)This);
+		::SetWindowLong(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(This));
 	}
 	else {
 		// Using additional data
-		This = (Engine*) ::GetWindowLong(hWnd, GWLP_USERDATA);
+		This = reinterpret_cast<Engine *>(static_cast<LONG_PTR>(::GetWindowLongPtrW(hWnd,GWLP_USERDATA)));
+		This->pLogig->i++;
 	}
 
 	if (message == WM_DESTROY)
@@ -117,7 +123,8 @@ LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		float Xpos, Ypos;
 		Xpos = static_cast<float>LOWORD(lParam);
 		Ypos = static_cast<float>HIWORD(lParam);
-		
+		//This->pLogig->AddElement(Xpos, Ypos, 10);
+		This->pLogig->i++;
 	}
 
 	return (DefWindowProc(hWnd, message, wParam, lParam));
