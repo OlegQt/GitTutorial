@@ -1,4 +1,3 @@
-#include <d2d1.h>
 #include "DemoApp.h"
 
 // Комментарий для компоновщика
@@ -11,6 +10,8 @@ Engine::Engine(HINSTANCE h)
 	this->m_pDirect2dFactory = NULL;
 	this->pBrush = NULL;
 	this->pRenderTarget = NULL;
+
+	this->pLogig = new CLogic;
 }
 Engine::~Engine()
 {

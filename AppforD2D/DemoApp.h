@@ -1,7 +1,9 @@
+#pragma once
 #include <windows.h>
-
 #include <d2d1.h>
 #include <d2d1helper.h>
+
+#include "CLogic.h"
 
 class Engine
 {
@@ -25,6 +27,8 @@ private:
 	ID2D1Factory* m_pDirect2dFactory;
 	ID2D1HwndRenderTarget* pRenderTarget;
 	ID2D1SolidColorBrush* pBrush;
+
+	CLogic* pLogig;
 
 	// Initialize device-independent resources.
 	HRESULT CreateDeviceIndependentResources();
