@@ -49,7 +49,7 @@ HRESULT Engine::Initialize()
 		// Register the window class.
 		WNDCLASSEX wcex = { sizeof(WNDCLASSEX) };
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
-		wcex.lpfnWndProc = Engine::WndProc;
+		wcex.lpfnWndProc = (WNDPROC)this->WndProc;
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = sizeof(LONG_PTR);
 		wcex.hInstance = this->hInst;
@@ -96,22 +96,26 @@ void Engine::RunMessageLoop()
 
 }
 LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{ 
+	Engine * pThis;
+	if (message == WM_NCCREATE)
+	{
+		LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+		pThis = static_cast<Engine*>(lpcs->lpCreateParams);
+		// Put the value in a safe place for future use
+		SetWindowLongPtr(hWnd, GWLP_USERDATA,	reinterpret_cast<LONG_PTR>(pThis));
+	}
+	else
+	{
+		// Recover the "this" pointer from where our WM_NCCREATE handler stashed it.
+		pThis = reinterpret_cast<Engine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	}
+	if (pThis) pThis->Procedure(hWnd, message, wParam, lParam);
+	
+	return (DefWindowProc(hWnd, message, wParam, lParam));
+}
+LRESULT Engine::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT result = 0;
-	Engine* This = NULL;
-	if (message == WM_CREATE&&!This) {
-
-		// Attach additional data
-		Engine* This;
-		This = (Engine*)((LPCREATESTRUCT)lParam)->lpCreateParams;
-		::SetWindowLong(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(This));
-	}
-	else {
-		// Using additional data
-		This = reinterpret_cast<Engine *>(static_cast<LONG_PTR>(::GetWindowLongPtrW(hWnd,GWLP_USERDATA)));
-		This->pLogig->i++;
-	}
-
 	if (message == WM_DESTROY)
 	{
 		PostQuitMessage(NULL);
@@ -123,11 +127,11 @@ LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		float Xpos, Ypos;
 		Xpos = static_cast<float>LOWORD(lParam);
 		Ypos = static_cast<float>HIWORD(lParam);
-		//This->pLogig->AddElement(Xpos, Ypos, 10);
-		This->pLogig->i++;
+		this->pLogig->i++;
+		this->pLogig->i++;
 	}
 
-	return (DefWindowProc(hWnd, message, wParam, lParam));
+	return S_OK;
 }
 HRESULT Engine::CreateDeviceIndependentResources()
 {

@@ -19,6 +19,7 @@ public:
 
 	// The windows procedure.
 	static LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
+	LRESULT Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	HINSTANCE hInst;
