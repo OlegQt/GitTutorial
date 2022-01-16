@@ -127,8 +127,7 @@ LRESULT Engine::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		float Xpos, Ypos;
 		Xpos = static_cast<float>LOWORD(lParam);
 		Ypos = static_cast<float>HIWORD(lParam);
-		this->pLogig->i++;
-		this->pLogig->i++;
+		this->pLogig->AddElement(Xpos, Ypos, 10.0f);
 	}
 
 	return S_OK;
@@ -170,6 +169,14 @@ HRESULT Engine::Render()
 	this->pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 	this->pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Gray));
 	// Draw here
+	int inc = 0;
+	while (inc<pLogig->GetArraySize())
+	{
+		CBall* pBall = pLogig->GetElement(inc);
+		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos), 20.0f, 20.0f), this->pBrush, 1.0f);
+		inc++;
+	}
+
 	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(20.0f, 20.0f),20.0f,20.0f), this->pBrush, 1.0f);
 
 

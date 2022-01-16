@@ -9,7 +9,9 @@ public:
 	~CLogic();
 
 	void AddElement(float,float,float);
-	int i = 0;
+	unsigned int GetArraySize();
+	CBall* GetElement(int num);
+
 private:
 	
 	std::vector<CBall>array;
