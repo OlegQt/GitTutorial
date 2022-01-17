@@ -12,6 +12,7 @@ Engine::Engine(HINSTANCE h)
 	this->pRenderTarget = NULL;
 
 	this->pLogig = new CLogic;
+	this->btnA = {10,10,20,20};
 }
 Engine::~Engine()
 {
@@ -69,7 +70,10 @@ HRESULT Engine::Initialize()
 	//m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
 	this->hWnd = CreateWindow(L"D2DDemoApp",L"app D2D",WS_OVERLAPPED|WS_SYSMENU,0,0,500,500,NULL,NULL,this->hInst,this);
 	if (!this->hWnd) return S_FALSE;
-
+	CreateWindow(L"Button", L"but", WS_CHILD | WS_VISIBLE|BS_OWNERDRAW, 
+		this->btnA.l, this->btnA.t, this->btnA.w, this->btnA.h,
+		this->hWnd, (HMENU)ID_BUTTON_A, this->hInst, NULL);
+	
 	if (SUCCEEDED(hr))
 	{
 		ShowWindow(this->hWnd, SW_SHOWNORMAL);
@@ -127,7 +131,14 @@ LRESULT Engine::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		float Xpos, Ypos;
 		Xpos = static_cast<float>LOWORD(lParam);
 		Ypos = static_cast<float>HIWORD(lParam);
-		this->pLogig->AddElement(Xpos, Ypos, 10.0f);
+		this->pLogig->AddElement(Xpos, Ypos, 5.0f);
+	}
+	if (message == WM_COMMAND)
+	{
+		if (wParam == ID_BUTTON_A)
+		{
+			this->btnA.pushed = !this->btnA.pushed;
+		}
 	}
 
 	return S_OK;
@@ -173,12 +184,18 @@ HRESULT Engine::Render()
 	while (inc<pLogig->GetArraySize())
 	{
 		CBall* pBall = pLogig->GetElement(inc);
-		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos), 20.0f, 20.0f), this->pBrush, 1.0f);
+		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos),pBall->Diameter, pBall->Diameter), this->pBrush, 1.0f);
 		inc++;
 	}
 
-	this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(20.0f, 20.0f),20.0f,20.0f), this->pBrush, 1.0f);
-
+	
+	//Ниже рендер интерфейса	
+	D2D1_RECT_F btnRect = { this->btnA.l,this->btnA.t,this->btnA.l + this->btnA.w,this->btnA.t + this->btnA.h };
+	if (this->btnA.pushed) {this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::AliceBlue));}
+	else { this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Gray));}
+	this->pRenderTarget->FillRectangle(btnRect, this->pBrush);
+	this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+	this->pRenderTarget->DrawRectangle(btnRect, this->pBrush, 2.0f, NULL);
 
 	// up to this end
 	hr = this->pRenderTarget->EndDraw();

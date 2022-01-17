@@ -5,6 +5,8 @@
 
 #include "CLogic.h"
 
+#define ID_BUTTON_A 22
+
 class Engine
 {
 public:
@@ -25,6 +27,8 @@ private:
 	HINSTANCE hInst;
 	HWND hWnd;
 
+	
+
 	ID2D1Factory* m_pDirect2dFactory;
 	ID2D1HwndRenderTarget* pRenderTarget;
 	ID2D1SolidColorBrush* pBrush;
@@ -36,4 +40,15 @@ private:
 	HRESULT CreateTarget();
 	HRESULT Render();
 	void DiscardDeviceResources();
+
+	struct WndButton
+	{
+		int l;
+		int t;
+		int h;
+		int w;
+		int id;
+		bool pushed;
+	};
+	WndButton btnA;
 };

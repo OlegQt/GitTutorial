@@ -9,6 +9,7 @@ public:
 	~CLogic();
 
 	void AddElement(float,float,float);
+	void SolveInteraction(int a, int b);
 	unsigned int GetArraySize();
 	CBall* GetElement(int num);
 

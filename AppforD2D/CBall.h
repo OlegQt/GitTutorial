@@ -7,6 +7,8 @@ public:
 	~CBall();
 
 	float xPos, yPos,Diameter;
+	float Vx, Vy, Vz;
+	float Mass;	
 
 };
 
