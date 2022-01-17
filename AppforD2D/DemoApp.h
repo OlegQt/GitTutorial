@@ -32,6 +32,7 @@ private:
 	ID2D1Factory* m_pDirect2dFactory;
 	ID2D1HwndRenderTarget* pRenderTarget;
 	ID2D1SolidColorBrush* pBrush;
+	ID2D1StrokeStyle* pStroke;
 
 	CLogic* pLogig;
 

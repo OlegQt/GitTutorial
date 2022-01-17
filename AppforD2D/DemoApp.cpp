@@ -9,10 +9,11 @@ Engine::Engine(HINSTANCE h)
 	this->hInst = h;
 	this->m_pDirect2dFactory = NULL;
 	this->pBrush = NULL;
+	this->pStroke = NULL;
 	this->pRenderTarget = NULL;
 
 	this->pLogig = new CLogic;
-	this->btnA = {10,10,20,20};
+	this->btnA = { 10,10,20,20 };
 }
 Engine::~Engine()
 {
@@ -36,14 +37,19 @@ Engine::~Engine()
 		this->pLogig->~CLogic();
 		this->pLogig = NULL;
 	}
+	if (this->pStroke)
+	{
+		this->pStroke->Release();
+		this->pStroke = nullptr;
+	}
 }
 
 HRESULT Engine::Initialize()
 {
-	HRESULT hr=S_OK;
+	HRESULT hr = S_OK;
 
 	// Initialize device-indpendent resources, such as the Direct2D factory
-	hr=this->CreateDeviceIndependentResources();
+	hr = this->CreateDeviceIndependentResources();
 	if (!SUCCEEDED(hr))return hr;
 	else {
 
@@ -62,18 +68,14 @@ HRESULT Engine::Initialize()
 		if (!RegisterClassEx(&wcex)) return S_FALSE;
 	}
 	// Create the window.
-	// Because the CreateWindow function takes its size in pixels,
-	// obtain the system DPI and use it to scale the window size.
 	//FLOAT dpiX, dpiY;
-	// The factory returns the current system DPI. 
-	// This is also the value it will use to create its own windows.
 	//m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-	this->hWnd = CreateWindow(L"D2DDemoApp",L"app D2D",WS_OVERLAPPED|WS_SYSMENU,0,0,500,500,NULL,NULL,this->hInst,this);
+	this->hWnd = CreateWindow(L"D2DDemoApp", L"app D2D", WS_OVERLAPPED | WS_SYSMENU, 0, 0, 500, 500, NULL, NULL, this->hInst, this);
 	if (!this->hWnd) return S_FALSE;
-	CreateWindow(L"Button", L"but", WS_CHILD | WS_VISIBLE|BS_OWNERDRAW, 
+	CreateWindow(L"Button", L"but", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		this->btnA.l, this->btnA.t, this->btnA.w, this->btnA.h,
 		this->hWnd, (HMENU)ID_BUTTON_A, this->hInst, NULL);
-	
+
 	if (SUCCEEDED(hr))
 	{
 		ShowWindow(this->hWnd, SW_SHOWNORMAL);
@@ -84,7 +86,7 @@ HRESULT Engine::Initialize()
 }
 void Engine::RunMessageLoop()
 {
-    MSG msg;
+	MSG msg;
 	msg.message = WM_NULL; //initialize variable msg
 	while (msg.message != WM_QUIT)
 	{
@@ -100,14 +102,14 @@ void Engine::RunMessageLoop()
 
 }
 LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{ 
-	Engine * pThis;
+{
+	Engine* pThis;
 	if (message == WM_NCCREATE)
 	{
 		LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		pThis = static_cast<Engine*>(lpcs->lpCreateParams);
 		// Put the value in a safe place for future use
-		SetWindowLongPtr(hWnd, GWLP_USERDATA,	reinterpret_cast<LONG_PTR>(pThis));
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
 	}
 	else
 	{
@@ -115,7 +117,7 @@ LRESULT Engine::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		pThis = reinterpret_cast<Engine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 	}
 	if (pThis) pThis->Procedure(hWnd, message, wParam, lParam);
-	
+
 	return (DefWindowProc(hWnd, message, wParam, lParam));
 }
 LRESULT Engine::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -149,7 +151,19 @@ HRESULT Engine::CreateDeviceIndependentResources()
 
 	// Create a Direct2D factory.
 	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pDirect2dFactory);
+	if (FAILED(hr)) return hr;
 
+	// Create Stroke. Its independent too
+	D2D1_STROKE_STYLE_PROPERTIES strokeStyleProperties = D2D1::StrokeStyleProperties(
+		D2D1_CAP_STYLE_ROUND,  // The start cap.
+		D2D1_CAP_STYLE_ROUND,  // The end cap.
+		D2D1_CAP_STYLE_ROUND, // The dash cap.
+		D2D1_LINE_JOIN_ROUND, // The line join.
+		10.0f, // The miter limit.
+		D2D1_DASH_STYLE_DOT, // The dash style D2D1_DASH_STYLE_DOT
+		0.0f // The dash offset.
+	);
+	hr = this->m_pDirect2dFactory->CreateStrokeStyle(strokeStyleProperties, NULL, 0, &pStroke);
 	return hr;
 }
 HRESULT Engine::CreateTarget()
@@ -159,7 +173,7 @@ HRESULT Engine::CreateTarget()
 	// Ïîëó÷àåì ðàçìåðû îêíà
 	RECT rc;
 	GetClientRect(this->hWnd, &rc);
-	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
+	D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
 
 	// Create a Direct2D render target
 	HRESULT hr = m_pDirect2dFactory->CreateHwndRenderTarget(
@@ -167,8 +181,9 @@ HRESULT Engine::CreateTarget()
 		D2D1::HwndRenderTargetProperties(this->hWnd, size),
 		&this->pRenderTarget
 	);
-	if(SUCCEEDED(hr)) this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-	if (SUCCEEDED(hr)&& !pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
+	if (SUCCEEDED(hr)) this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+	if (SUCCEEDED(hr) && !pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
+
 	return hr;
 
 }
@@ -181,18 +196,25 @@ HRESULT Engine::Render()
 	this->pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Gray));
 	// Draw here
 	int inc = 0;
-	while (inc<pLogig->GetArraySize())
+	while (inc < pLogig->GetArraySize())
 	{
 		CBall* pBall = pLogig->GetElement(inc);
-		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos),pBall->Diameter, pBall->Diameter), this->pBrush, 1.0f);
+		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos), pBall->Diameter, pBall->Diameter), this->pBrush, 1.0f);
 		inc++;
 	}
 
-	
+	//Render additional graphics
+	if (this->btnA.pushed)
+	{
+		this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
+		this->pRenderTarget->DrawLine(D2D1::Point2F(50.0f, 30.0f), D2D1::Point2F(150.0f, 30.0f), this->pBrush, 2.0f, this->pStroke);
+	}
+
+
 	//Ниже рендер интерфейса	
 	D2D1_RECT_F btnRect = { this->btnA.l,this->btnA.t,this->btnA.l + this->btnA.w,this->btnA.t + this->btnA.h };
-	if (this->btnA.pushed) {this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::AliceBlue));}
-	else { this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Gray));}
+	if (this->btnA.pushed) { this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::AliceBlue)); }
+	else { this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Gray)); }
 	this->pRenderTarget->FillRectangle(btnRect, this->pBrush);
 	this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 	this->pRenderTarget->DrawRectangle(btnRect, this->pBrush, 2.0f, NULL);
