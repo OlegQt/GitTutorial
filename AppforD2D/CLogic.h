@@ -1,5 +1,6 @@
 #pragma once
 #include "CBall.h"
+#include "CMatrix.h"
 #include <vector>
 
 class CLogic

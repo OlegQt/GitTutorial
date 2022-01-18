@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClCompile Include="CBall.cpp" />
     <ClCompile Include="CLogic.cpp" />
+    <ClCompile Include="CMatrix.cpp" />
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBall.h" />
     <ClInclude Include="CLogic.h" />
+    <ClInclude Include="CMatrix.h" />
     <ClInclude Include="DemoApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -199,6 +199,7 @@ HRESULT Engine::Render()
 	while (inc < pLogig->GetArraySize())
 	{
 		CBall* pBall = pLogig->GetElement(inc);
+		this->pRenderTarget->DrawLine(D2D1::Point2F(0, 0), D2D1::Point2F(pBall->xPos, pBall->yPos), this->pBrush, 1.0f, NULL);
 		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos), pBall->Diameter, pBall->Diameter), this->pBrush, 1.0f);
 		inc++;
 	}
@@ -206,6 +207,7 @@ HRESULT Engine::Render()
 	//Render additional graphics
 	if (this->btnA.pushed)
 	{
+		this->pLogig->SolveInteraction(0, 0);
 		this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
 		this->pRenderTarget->DrawLine(D2D1::Point2F(50.0f, 30.0f), D2D1::Point2F(150.0f, 30.0f), this->pBrush, 2.0f, this->pStroke);
 	}

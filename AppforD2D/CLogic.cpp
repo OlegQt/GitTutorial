@@ -15,7 +15,10 @@ void CLogic::AddElement(float xPos, float yPos, float Diameter)
 void CLogic::SolveInteraction(int a, int b)
 {
 	CBall* ballA = this->GetElement(a);
-	CBall* ballB = this->GetElement(b);
+	float x = CMatrix::rotate(ballA->xPos, ballA->yPos).first;
+	float y = CMatrix::rotate(ballA->xPos, ballA->yPos).second;
+	ballA->xPos = x;
+	ballA->yPos = y;
 	// полная скорость шара А
 	//float vA = 
 	// расчет косинуса угла между вектором скорости первого шара и осью между ними
