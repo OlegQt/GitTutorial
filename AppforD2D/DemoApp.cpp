@@ -226,19 +226,36 @@ HRESULT Engine::Render()
 	int inc = 0;
 	while (inc < pLogig->GetArraySize())
 	{
-		CArrow* pArrow = pLogig->GetElement(inc);
 
-		this->pRenderTarget->DrawLine(D2D1::Point2F(pArrow->xPos, pArrow->yPos), D2D1::Point2F(pArrow->Vx, pArrow->Vy), this->pBrush, 1.0f, NULL);
+		CArrow* pArrow = pLogig->GetElement(inc);
+		CArrow ExtraArrow = *pArrow; // с Помощью этого вектора будет расчитан угол поворота
+
+
+		//this->pRenderTarget->DrawLine(D2D1::Point2F(pArrow->xPos, pArrow->yPos), D2D1::Point2F(pArrow->Vx, pArrow->Vy), this->pBrush, 1.0f, NULL);
 		//this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pArrow->xPos, pArrow->yPos), pArrow->Diameter, pArrow->Diameter), this->pBrush, 1.0f);
 		this->m_pDirect2dFactory->CreatePathGeometry(&m_pPathGeometry);
 		hr = m_pPathGeometry->Open(&pSink);
+
 		pSink->BeginFigure(D2D1::Point2F(pArrow->xPos, pArrow->yPos), D2D1_FIGURE_BEGIN_FILLED);
-		pSink->AddLine(D2D1::Point2F(pArrow->Vx + 10, pArrow->Vy + 10));
-		pSink->AddLine(D2D1::Point2F(pArrow->Vx - 10, pArrow->Vy - 10));
+		float dX = pArrow->xPos;
+		float dY = pArrow->yPos;
+
+		CMatrix::sum(&ExtraArrow, -dX, -dY);
+		CMatrix::rotate(&ExtraArrow, 3.0f);
+		CMatrix::sum(&ExtraArrow, dX, dY);
+
+		pSink->AddLine(D2D1::Point2F(ExtraArrow.Vx, ExtraArrow.Vy));
+
+		CMatrix::sum(&ExtraArrow, -dX, -dY);
+		CMatrix::rotate(&ExtraArrow, -3.0f);
+		CMatrix::sum(&ExtraArrow, dX, dY);
+
+		pSink->AddLine(D2D1::Point2F(ExtraArrow.Vx, ExtraArrow.Vy));
+
 		pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
 		hr = pSink->Close();
 		//this->pRenderTarget->DrawGeometry(m_pPathGeometry, this->pBrush, 1.0f, NULL);
-		this->pRenderTarget->FillGeometry(m_pPathGeometry, this->pBrush);
+		if (m_pPathGeometry) this->pRenderTarget->FillGeometry(m_pPathGeometry, this->pBrush);
 		m_pPathGeometry->Release();
 		m_pPathGeometry = nullptr;
 		pSink->Release();
