@@ -21,7 +21,7 @@
     <ClCompile Include="DemoApp.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CBall.cpp">
+    <ClCompile Include="CArrow.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="CLogic.cpp">
@@ -35,7 +35,7 @@
     <ClInclude Include="DemoApp.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="CBall.h">
+    <ClInclude Include="CArrow.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="CLogic.h">

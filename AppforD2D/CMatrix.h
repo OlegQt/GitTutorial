@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <iostream>
 #include <cmath>
-#include "CBall.h"
+#include "CArrow.h"
 #define PI 3.14159265
 
 class CMatrix

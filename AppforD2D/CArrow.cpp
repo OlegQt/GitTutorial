@@ -1,4 +1,4 @@
-#include "CBall.h"
+#include "CArrow.h"
 
 CArrow::CArrow(float x, float y, float d)
 {
