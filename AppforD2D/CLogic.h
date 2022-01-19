@@ -3,7 +3,7 @@
 #include "CMatrix.h"
 #include <vector>
 
-#define STARN 74
+#define STARN 5
 
 class CLogic
 {
