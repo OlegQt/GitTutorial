@@ -1,11 +1,12 @@
 #pragma once
 #include <windows.h>
-class CBall
+class CArrow
 {
 public:
-	CBall(float,float,float);
-	CBall();
-	~CBall();
+	CArrow(float,float,float);
+	CArrow(float, float, float,float);
+	CArrow();
+	~CArrow();
 
 	float xPos, yPos,Diameter;
 	float Vx, Vy, Vz;

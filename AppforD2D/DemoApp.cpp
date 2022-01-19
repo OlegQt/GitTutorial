@@ -42,6 +42,11 @@ Engine::~Engine()
 		this->pStroke->Release();
 		this->pStroke = nullptr;
 	}
+	if (this->pGeom)
+	{
+		this->pGeom->Release();
+		this->pGeom = nullptr;
+	}
 }
 
 HRESULT Engine::Initialize()
@@ -72,6 +77,7 @@ HRESULT Engine::Initialize()
 	//m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
 	this->hWnd = CreateWindow(L"D2DDemoApp", L"app D2D", WS_OVERLAPPED | WS_SYSMENU, 0, 0, 500, 500, NULL, NULL, this->hInst, this);
 	if (!this->hWnd) return S_FALSE;
+	SetTimer(hWnd, TIMER1, 10, NULL);
 	CreateWindow(L"Button", L"but", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		this->btnA.l, this->btnA.t, this->btnA.w, this->btnA.h,
 		this->hWnd, (HMENU)ID_BUTTON_A, this->hInst, NULL);
@@ -135,14 +141,30 @@ LRESULT Engine::Procedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Ypos = static_cast<float>HIWORD(lParam);
 		this->pLogig->AddElement(Xpos, Ypos, 5.0f);
 	}
+	if (message == WM_MOUSEMOVE)
+	{
+		// Достаем координаты щелчка
+		float Xpos, Ypos;
+		Xpos = static_cast<float>LOWORD(lParam);
+		Ypos = static_cast<float>HIWORD(lParam);
+		this->pLogig->MooveStar(Xpos, Ypos);
+	}
 	if (message == WM_COMMAND)
 	{
 		if (wParam == ID_BUTTON_A)
 		{
 			this->btnA.pushed = !this->btnA.pushed;
+			this->pLogig->CreateStar();
 		}
 	}
-
+	if (message == WM_TIMER)
+	{
+		if (wParam == TIMER1)
+		{
+			// do something1
+			this->pLogig->RotateStar();
+		}
+	}
 	return S_OK;
 }
 HRESULT Engine::CreateDeviceIndependentResources()
@@ -164,6 +186,7 @@ HRESULT Engine::CreateDeviceIndependentResources()
 		0.0f // The dash offset.
 	);
 	hr = this->m_pDirect2dFactory->CreateStrokeStyle(strokeStyleProperties, NULL, 0, &pStroke);
+
 	return hr;
 }
 HRESULT Engine::CreateTarget()
@@ -184,6 +207,7 @@ HRESULT Engine::CreateTarget()
 	if (SUCCEEDED(hr)) this->pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 	if (SUCCEEDED(hr) && !pBrush) hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &this->pBrush);
 
+
 	return hr;
 
 }
@@ -195,23 +219,44 @@ HRESULT Engine::Render()
 	this->pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 	this->pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Gray));
 	// Draw here
+	ID2D1GeometrySink* pSink = NULL;
+	ID2D1PathGeometry* m_pPathGeometry = NULL;
+	if (SUCCEEDED(hr))	hr = this->m_pDirect2dFactory->CreatePathGeometry(&m_pPathGeometry);
+
 	int inc = 0;
 	while (inc < pLogig->GetArraySize())
 	{
-		CBall* pBall = pLogig->GetElement(inc);
-		this->pRenderTarget->DrawLine(D2D1::Point2F(0, 0), D2D1::Point2F(pBall->xPos, pBall->yPos), this->pBrush, 1.0f, NULL);
-		this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pBall->xPos, pBall->yPos), pBall->Diameter, pBall->Diameter), this->pBrush, 1.0f);
+		CArrow* pArrow = pLogig->GetElement(inc);
+
+		this->pRenderTarget->DrawLine(D2D1::Point2F(pArrow->xPos, pArrow->yPos), D2D1::Point2F(pArrow->Vx, pArrow->Vy), this->pBrush, 1.0f, NULL);
+		//this->pRenderTarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2F(pArrow->xPos, pArrow->yPos), pArrow->Diameter, pArrow->Diameter), this->pBrush, 1.0f);
+		this->m_pDirect2dFactory->CreatePathGeometry(&m_pPathGeometry);
+		hr = m_pPathGeometry->Open(&pSink);
+		pSink->BeginFigure(D2D1::Point2F(pArrow->xPos, pArrow->yPos), D2D1_FIGURE_BEGIN_FILLED);
+		pSink->AddLine(D2D1::Point2F(pArrow->Vx + 10, pArrow->Vy + 10));
+		pSink->AddLine(D2D1::Point2F(pArrow->Vx - 10, pArrow->Vy - 10));
+		pSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+		hr = pSink->Close();
+		//this->pRenderTarget->DrawGeometry(m_pPathGeometry, this->pBrush, 1.0f, NULL);
+		this->pRenderTarget->FillGeometry(m_pPathGeometry, this->pBrush);
+		m_pPathGeometry->Release();
+		m_pPathGeometry = nullptr;
+		pSink->Release();
+		pSink = nullptr;
 		inc++;
 	}
+	//pSink = nullptr;
+
 
 	//Render additional graphics
+	/*
 	if (this->btnA.pushed)
 	{
 		this->pLogig->SolveInteraction(0, 0);
 		this->pBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Red));
 		this->pRenderTarget->DrawLine(D2D1::Point2F(50.0f, 30.0f), D2D1::Point2F(150.0f, 30.0f), this->pBrush, 2.0f, this->pStroke);
 	}
-
+	//*/
 
 	//Ниже рендер интерфейса	
 	D2D1_RECT_F btnRect = { this->btnA.l,this->btnA.t,this->btnA.l + this->btnA.w,this->btnA.t + this->btnA.h };

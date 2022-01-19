@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <iostream>
 #include <cmath>
+#include "CBall.h"
 #define PI 3.14159265
 
 class CMatrix
@@ -9,6 +10,7 @@ class CMatrix
 	CMatrix();
 	~CMatrix();
 public:
-	static std::pair<float, float> rotate(float,float);
+	static void  rotate(CArrow *,float);
+	static void sum(CArrow *, float x, float y);
 };
 

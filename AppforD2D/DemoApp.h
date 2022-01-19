@@ -6,6 +6,7 @@
 #include "CLogic.h"
 
 #define ID_BUTTON_A 22
+#define TIMER1 1001
 
 class Engine
 {
@@ -33,6 +34,7 @@ private:
 	ID2D1HwndRenderTarget* pRenderTarget;
 	ID2D1SolidColorBrush* pBrush;
 	ID2D1StrokeStyle* pStroke;
+	ID2D1Geometry* pGeom;
 
 	CLogic* pLogig;
 

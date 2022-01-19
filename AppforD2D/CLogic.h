@@ -3,6 +3,8 @@
 #include "CMatrix.h"
 #include <vector>
 
+#define STARN 74
+
 class CLogic
 {
 public:
@@ -10,12 +12,17 @@ public:
 	~CLogic();
 
 	void AddElement(float,float,float);
+	void AddArrow(float,float,float,float);
+
+	void CreateStar();
+	void RotateStar();
+	void MooveStar(float, float);
 	void SolveInteraction(int a, int b);
 	unsigned int GetArraySize();
-	CBall* GetElement(int num);
+	CArrow* GetElement(int num);
 
 private:
 	
-	std::vector<CBall>array;
+	std::vector<CArrow>array;
 };
 

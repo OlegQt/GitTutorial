@@ -1,18 +1,27 @@
 #include "CBall.h"
 
-CBall::CBall(float x, float y, float d)
+CArrow::CArrow(float x, float y, float d)
 {
 	this->xPos = x;
 	this->yPos = y;
-	this->Diameter = d;
-	this->Vx = 0.01f;
-	this->Vy = Vx / 0.12f;
+	
+	this->Vx = 0.0f;
+	this->Vy = 0.0f;
 	this->Vz = 0;
 
+	this->Diameter = d;
 }
-CBall::CBall()
+CArrow::CArrow()
 {}
-CBall::~CBall()
+CArrow::CArrow(float xA, float yA, float xB, float yB)
+{
+	this->xPos = xA;
+	this->yPos = yA;
+
+	this->Vx = xB;
+	this->Vy = yB;
+}
+CArrow::~CArrow()
 {
 }
 
