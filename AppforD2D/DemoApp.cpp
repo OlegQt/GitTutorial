@@ -241,13 +241,13 @@ HRESULT Engine::Render()
 		float dY = pArrow->yPos;
 
 		CMatrix::sum(&ExtraArrow, -dX, -dY);
-		CMatrix::rotate(&ExtraArrow, 3.0f);
+		CMatrix::rotate(&ExtraArrow, 4.0f);
 		CMatrix::sum(&ExtraArrow, dX, dY);
 
 		pSink->AddLine(D2D1::Point2F(ExtraArrow.Vx, ExtraArrow.Vy));
 
 		CMatrix::sum(&ExtraArrow, -dX, -dY);
-		CMatrix::rotate(&ExtraArrow, -3.0f);
+		CMatrix::rotate(&ExtraArrow, -4.0f);
 		CMatrix::sum(&ExtraArrow, dX, dY);
 
 		pSink->AddLine(D2D1::Point2F(ExtraArrow.Vx, ExtraArrow.Vy));

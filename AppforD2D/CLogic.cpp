@@ -49,7 +49,7 @@ void CLogic::RotateStar()
 			float dX = this->array.at(iter).xPos;
 			float dY = this->array.at(iter).yPos;
 			CMatrix::sum(&this->array.at(iter), -dX, -dY);
-			CMatrix::rotate(&this->array.at(iter), 1.0f);
+			CMatrix::rotate(&this->array.at(iter), 0.5f);
 			CMatrix::sum(&this->array.at(iter), dX, dY);
 		}
 	}
